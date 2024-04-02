@@ -1,41 +1,85 @@
-FROM registry.gitlab.com/islandoftex/images/texlive:base
+# This image is based on Debian instead of e.g. Alpine as at the time of its
+# creation there were binaries (e.g. biber) that were not distributed for the
+# Linux/MUSL platform (at least not via default TeX Live). Now downstream
+# images rely on this, so do not change the base OS without good reason.
 
-# whether to install documentation and/or source files
-# this has to be yes or no
-ARG DOCFILES=no
-ARG SRCFILES=no
-ARG SCHEME=full
+# the current release needed to determine which way to
+# verify files
+ARG CURRENTRELEASE
+# the documentation or source suffix ("-doc" etc.)
+ARG SUFFIX=""
 
-# the mirror from which we will download TeX Live
-ARG TLMIRRORURL
+FROM registry.gitlab.com/islandoftex/images/texlive:TL$CURRENTRELEASE-historic-tree$SUFFIX AS tree
+
+FROM debian:12-slim AS base
+
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    # ConTeXt cache can be created on runtime and does not need to
+    # increase image size
+    TEXLIVE_INSTALL_NO_CONTEXT_CACHE=1 \
+    # As we will not install regular documentation why would we want to
+    # install perl docs…
+    NOPERLDOC=1
+
+RUN apt-get update && \
+  # basic utilities for TeX Live installation
+  apt-get install -qy --no-install-recommends curl git unzip \
+  # miscellaneous dependencies for TeX Live tools
+  make fontconfig perl default-jre libgetopt-long-descriptive-perl \
+  libdigest-perl-md5-perl libncurses6 \
+  # for latexindent (see #13)
+  libunicode-linebreak-perl libfile-homedir-perl libyaml-tiny-perl \
+  # for eps conversion (see #14)
+  ghostscript \
+  # for metafont (see #24)
+  libsm6 \
+  # for syntax highlighting
+  python3 python3-pygments \
+  # for gnuplot backend of pgfplots (see !13)
+  gnuplot-nox && \
+  rm -rf /var/lib/apt/lists/* && \
+  rm -rf /var/cache/apt/ && \
+  # bad fix for python handling
+  ln -s /usr/bin/python3 /usr/bin/python
+
+FROM base AS release
+# the current release needed to determine which way to
+# verify files
+ARG CURRENTRELEASE
+# the documentation or source suffix ("-doc" etc.)
+ARG SUFFIX=""
 
 # whether to create font and ConTeXt caches
 ARG GENERATE_CACHES=yes
 
+ARG DOCFILES
+ARG SRCFILES
+
 WORKDIR /tmp
 
-# download and install equivs file for dummy package
-RUN curl https://tug.org/texlive/files/debian-equivs-2022-ex.txt --output texlive-local && \
+RUN echo "deb http://ftp.de.debian.org/debian bookworm main" >> /etc/apt/sources.list && \
+  apt-get update && \
+  # The line above adds the Debian main mirror which is only required to
+  # fetch libncurses5 from Debian package repositories. Xindy requires
+  # libncurses5.
+  apt-get install -qy --no-install-recommends libncurses5 && \
+  # Mark all texlive packages as installed. This enables installing
+  # latex-related packges in child images.
+  # Inspired by https://tex.stackexchange.com/a/95373/9075.
+  apt-get install -qy --no-install-recommends equivs && \
+  # download equivs file for dummy package
+  curl https://tug.org/texlive/files/debian-equivs-$CURRENTRELEASE-ex.txt --output texlive-local && \
   sed -i "s/2022/9999/" texlive-local && \
   # freeglut3 does not ship with debian testing, so we remove it because there
   # is no GUI need in the container anyway (see #28)
   sed -i "/Depends: freeglut3/d" texlive-local && \
-  apt-get update && \
-  # Mark all texlive packages as installed. This enables installing
-  # latex-related packges in child images.
-  # Inspired by https://tex.stackexchange.com/a/95373/9075.
-  apt-get install -qy --no-install-recommends equivs \
-  # at this point also install gpg and gpg-agent to allow tlmgr's
-  # key subcommand to work correctly (see #21)
-  gpg gpg-agent \
-  # we install using rsync so we need to have it installed
-  rsync && \
-  # we need to change into tl-equis to get it working
+  # we need to change into tl-equivs to get it working
   equivs-build texlive-local && \
   dpkg -i texlive-local_9999.99999999-1_all.deb && \
   apt-get install -qyf --no-install-recommends && \
   # reverse the cd command from above and cleanup
-  rm -rf ./*texlive* && \
+  rm -rf ./* && \
   # save some space
   apt-get remove -y --purge equivs && \
   apt-get autoremove -qy --purge && \
@@ -43,67 +87,37 @@ RUN curl https://tug.org/texlive/files/debian-equivs-2022-ex.txt --output texliv
   apt-get clean && \
   rm -rf /var/cache/apt/
 
-RUN echo "Fetching installation from mirror $TLMIRRORURL" && \
-  rsync -a --stats "$TLMIRRORURL" texlive && \
-  cd texlive && \
-  # create installation profile for full scheme installation with
-  # the selected options
-  echo "Building with documentation: $DOCFILES" && \
-  echo "Building with sources: $SRCFILES" && \
-  echo "Building with scheme: $SCHEME" && \
-  # choose complete installation
-  echo "selected_scheme scheme-$SCHEME" > install.profile && \
-  # … but disable documentation and source files when asked to stay slim
-  if [ "$DOCFILES" = "no" ]; then echo "tlpdbopt_install_docfiles 0" >> install.profile && \
-    echo "BUILD: Disabling documentation files"; fi && \
-  if [ "$SRCFILES" = "no" ]; then echo "tlpdbopt_install_srcfiles 0" >> install.profile && \
-    echo "BUILD: Disabling source files"; fi && \
-  echo "tlpdbopt_autobackup 0" >> install.profile && \
-  # furthermore we want our symlinks in the system binary folder to avoid
-  # fiddling around with the PATH
-  echo "tlpdbopt_sys_bin /usr/bin" >> install.profile && \
-  # actually install TeX Live
-  ./install-tl -profile install.profile && \
-  cd .. && \
-  rm -rf texlive
+COPY --from=tree /usr/local/texlive /usr/local/texlive
 
-WORKDIR /workdir
+# add all relevant binaries to the PATH and set TEXMF for ConTeXt
+ENV PATH=/usr/local/texlive/$CURRENTRELEASE/bin/x86_64-linux:$PATH \
+    MANPATH=/usr/local/texlive/$CURRENTRELEASE/texmf-dist/doc/man:$MANPATH \
+    INFOPATH=/usr/local/texlive/$CURRENTRELEASE/texmf-dist/doc/info:$INFOPATH
+
+WORKDIR /
 RUN echo "Set PATH to $PATH" && \
-  $(find /usr/local/texlive -name tlmgr) path add && \
-  # Temporary fix for ConTeXt (#30)
-  (sed -i '/package.loaded\["data-ini"\]/a if os.selfpath then environment.ownbin=lfs.symlinktarget(os.selfpath..io.fileseparator..os.selfname);environment.ownpath=environment.ownbin:match("^.*"..io.fileseparator) else environment.ownpath=kpse.new("luatex"):var_value("SELFAUTOLOC");environment.ownbin=environment.ownpath..io.fileseparator..(arg[-2] or arg[-1] or arg[0] or "luatex"):match("[^"..io.fileseparator.."]*$") end' /usr/bin/mtxrun.lua || true) && \
   # pregenerate caches as per #3; overhead is < 5 MB which does not really
-  # matter for images in the sizes of GBs; some TL schemes might not have
-  # all the tools, therefore failure is allowed
+  # matter for images in the sizes of GBs
   if [ "$GENERATE_CACHES" = "yes" ]; then \
-    echo "Generating caches and ConTeXt files" && \
-    (luaotfload-tool -u || true) && \
+    echo "Generating caches" && \
+    luaotfload-tool -u && \
+    mtxrun --generate && \
     # also generate fontconfig cache as per #18 which is approx. 20 MB but
     # benefits XeLaTeX user to load fonts from the TL tree by font name
-    (cp "$(find /usr/local/texlive -name texlive-fontconfig.conf)" /etc/fonts/conf.d/09-texlive-fonts.conf || true) && \
-    fc-cache -fsv && \
-    if [ -f "/usr/bin/context" ]; then \
-      mtxrun --generate && \
-      texlua /usr/bin/mtxrun.lua --luatex --generate && \
-      context --make && \
-      context --luatex --make; \
-    fi \
+    cp "$(find /usr/local/texlive -name texlive-fontconfig.conf)" /etc/fonts/conf.d/09-texlive-fonts.conf && \
+    fc-cache -fsv; \
   else \
-    echo "Not generating caches or ConTeXt files"; \
+    echo "Not generating caches"; \
   fi
 
 RUN \
-  # test the installation; we only test the full installation because
-  # in that, all tools are present and have to work
-  if [ "$SCHEME" = "full" ]; then \
-    latex --version && printf '\n' && \
-    biber --version && printf '\n' && \
-    xindy --version && printf '\n' && \
-    arara --version && printf '\n' && \
-    context --version && printf '\n' && \
-    context --luatex --version && printf '\n' && \
-    if [ "$DOCFILES" = "yes" ]; then texdoc -l geometry; fi && \
-    if [ "$SRCFILES" = "yes" ]; then kpsewhich amsmath.dtx; fi; \
-  fi && \
+  # test the installation
+  latex --version && printf '\n' && \
+  biber --version && printf '\n' && \
+  xindy --version && printf '\n' && \
+  arara --version && printf '\n' && \
   python --version && printf '\n' && \
-  pygmentize -V && printf '\n'
+  pygmentize -V && printf '\n' && \
+  if [ "$DOCFILES" = "yes" ]; then texdoc -l geometry; fi && \
+  if [ "$SRCFILES" = "yes" ]; then kpsewhich amsmath.dtx; fi
+
