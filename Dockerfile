@@ -11,7 +11,7 @@ ARG SUFFIX=""
 
 FROM registry.gitlab.com/islandoftex/images/texlive:TL$CURRENTRELEASE-historic-tree$SUFFIX AS tree
 
-FROM debian:12-slim AS base
+FROM debian:11-slim AS base
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
