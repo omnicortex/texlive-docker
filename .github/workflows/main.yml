@@ -2,6 +2,7 @@ name: Build nightly
 on:
   schedule:
     - cron: "0-59/10 * * * *"
+  push:
 
 jobs:
   check:
