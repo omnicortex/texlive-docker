@@ -39,11 +39,13 @@ jobs:
     - name: Retrieve mirror url
       run: |
         export CURRENTRELEASE=2022
-        echo $CURRENTRELEASE
         export "MIRROR=$(scripts/pick-historic-mirror.sh $CURRENTRELEASE)systems/texlive/$CURRENTRELEASE/tlnet-final/"
-        echo $MIRROR
         echo "MIRRORURL=$MIRROR" >> $GITHUB_OUTPUT
       id: mirror
+
+    - name: Test mirror url
+      run: |
+        echo "${{ steps.mirror.outputs.MIRRORURL }}"
       
     - name: Build and push tagged Docker image
       uses: docker/build-push-action@v3
