@@ -43,7 +43,7 @@ RUN apt-get update && \
   ln -s /usr/bin/python3 /usr/bin/python
 
 FROM debian:11-slim AS root
-
+ARG TLMIRRORURL
 # install required setup dependencies
 RUN apt-get update && \
   apt-get install -qy --no-install-recommends \
