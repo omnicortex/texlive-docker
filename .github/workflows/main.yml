@@ -40,7 +40,10 @@ jobs:
       run: |
         export CURRENTRELEASE=2022
         echo $CURRENTRELEASE
-        echo "TLMIRRORURL=$(scripts/pick-historic-mirror.sh $CURRENTRELEASE)systems/texlive/$CURRENTRELEASE/tlnet-final/" >> $GITHUB_OUTPUT
+        export "TLMIRRORURL=$(scripts/pick-historic-mirror.sh $CURRENTRELEASE)systems/texlive/$CURRENTRELEASE/tlnet-final/"
+        echo $TLMIRRORURL
+        echo $TLMIRRORURL >> $GITHUB_OUTPUT
+        #echo "TLMIRRORURL=$(scripts/pick-historic-mirror.sh $CURRENTRELEASE)systems/texlive/$CURRENTRELEASE/tlnet-final/" >> $GITHUB_OUTPUT
       id: mirror
       
     - name: Build and push tagged Docker image
