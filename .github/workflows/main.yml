@@ -55,6 +55,8 @@ jobs:
         target: texlive
         build-args: |
           CURRENTRELEASE=2022
+          DOCFILES=no
+          SRCFILES=no
           TLMIRRORURL=${{ steps.mirror.outputs.MIRRORURL }}
         tags: |
           ghcr.io/${{ github.repository_owner }}/texlive:2022
@@ -67,6 +69,8 @@ jobs:
         target: texlive-full
         build-args: |
           CURRENTRELEASE=2022
+          DOCFILES=yes
+          SRCFILES=yes
           TLMIRRORURL=${{ steps.mirror.outputs.MIRRORURL }}
         tags: |
           ghcr.io/${{ github.repository_owner }}/texlive:2022-full

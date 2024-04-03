@@ -59,8 +59,8 @@ FROM root AS tree
 
 # whether to install documentation and/or source files
 # this has to be yes or no
-ARG DOCFILES=no
-ARG SRCFILES=no
+ARG DOCFILES
+ARG SRCFILES
 
 # create installation profile for full scheme installation with
 # the selected options
@@ -87,8 +87,8 @@ FROM root AS tree-full
 
 # whether to install documentation and/or source files
 # this has to be yes or no
-ARG DOCFILES=yes
-ARG SRCFILES=yes
+ARG DOCFILES
+ARG SRCFILES
 
 # create installation profile for full scheme installation with
 # the selected options
@@ -155,8 +155,8 @@ ARG CURRENTRELEASE
 # whether to create font and ConTeXt caches
 ARG GENERATE_CACHES=yes
 
-ARG DOCFILES=no
-ARG SRCFILES=no
+ARG DOCFILES
+ARG SRCFILES
 
 COPY --from=tree /usr/local/texlive /usr/local/texlive
 
@@ -200,8 +200,8 @@ ARG CURRENTRELEASE
 # whether to create font and ConTeXt caches
 ARG GENERATE_CACHES=yes
 
-ARG DOCFILES=yes
-ARG SRCFILES=yes
+ARG DOCFILES
+ARG SRCFILES
 
 COPY --from=tree-full /usr/local/texlive /usr/local/texlive
 
