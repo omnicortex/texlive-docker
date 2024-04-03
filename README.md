@@ -18,7 +18,7 @@ or any other tag.
 
 If you want to pull these images from Docker Hub, simply use
 
-    FROM texlive/texlive:latest
+    FROM ghcr.io/omnicortex/texlive:latest
 
 or any other tag.
 
@@ -35,9 +35,7 @@ For every release `X` (e.g. `latest`) we are providing the following flavors:
 
 * `X`: A "minimal" TeX Live installation without documentation and source
   files. However, all tools mentioned above will work without problems.
-* `X-doc`: `X` with documentation files.
-* `X-src`: `X` with source files.
-* `X-doc-src`: `X` with documentation and source files.
+* `X-full`: `X` with documentation and source files.
 
 If in doubt, choose `X` and only pull the larger images if you have to.
 Especially documentation files do add a significant payload.
