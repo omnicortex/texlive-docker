@@ -1,7 +1,5 @@
 name: Build nightly
 on:
-  schedule:
-    - cron: "0 0 * * *"
   push:
 
 jobs:
@@ -38,15 +36,32 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Retrieve mirror url
+      run: |
+        export CURRENTRELEASE=2022
+        echo "TLMIRRORURL=$(scripts/pick-historic-mirror.sh $CURRENTRELEASE)systems/texlive/$CURRENTRELEASE/tlnet-final/" >> $GITHUB_OUTPUT
+      id: mirror
+      
     - name: Build and push tagged Docker image
       uses: docker/build-push-action@v3
       with:
         context: .
         push: true
+        target: texlive
         build-args: |
-          DOCFILES=no 
-          SRCFILES=no 
-          TLMIRRORURL=rsync://tug.org/historic/
+          CURRENTRELEASE=2022
+          TLMIRRORURL=${{ steps.mirror.outputs.TLMIRRORURL }}
         tags: |
           ghcr.io/${{ github.repository_owner }}/texlive:2022
 
+    - name: Build and push tagged Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        push: true
+        target: texlive-full
+        build-args: |
+          CURRENTRELEASE=2022
+          TLMIRRORURL=${{ steps.mirror.outputs.TLMIRRORURL }}
+        tags: |
+          ghcr.io/${{ github.repository_owner }}/texlive:2022-full

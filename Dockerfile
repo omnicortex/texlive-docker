@@ -5,11 +5,10 @@
 
 # the current release needed to determine which way to
 # verify files
-ARG CURRENTRELEASE=2022
-# the documentation or source suffix ("-doc" etc.)
-#ARG SUFFIX=""
+ARG CURRENTRELEASE
 
-#FROM registry.gitlab.com/islandoftex/images/texlive:TL$CURRENTRELEASE-historic-tree$SUFFIX AS tree
+# the mirror from which we will download TeX Live
+ARG TLMIRRORURL
 
 FROM debian:11-slim AS base
 
@@ -43,15 +42,7 @@ RUN apt-get update && \
   # bad fix for python handling
   ln -s /usr/bin/python3 /usr/bin/python
 
-FROM debian:11-slim AS tree
-
-# whether to install documentation and/or source files
-# this has to be yes or no
-ARG DOCFILES=no
-ARG SRCFILES=no
-
-# the mirror from which we will download TeX Live
-ARG TLMIRRORURL
+FROM debian:11-slim AS root
 
 # install required setup dependencies
 RUN apt-get update && \
@@ -66,10 +57,18 @@ RUN echo "Fetching installation from mirror $TLMIRRORURL" && \
   rsync -a --stats "$TLMIRRORURL" texlive && \
   cd texlive && \
   # debug output for potential bad rsync fetches
-  if ! [ -f install-tl ]; then ls -lisa; fi && \
-  # create installation profile for full scheme installation with
-  # the selected options
-  echo "Building with documentation: $DOCFILES" && \
+  if ! [ -f install-tl ]; then ls -lisa; fi
+
+FROM root AS tree
+
+# whether to install documentation and/or source files
+# this has to be yes or no
+ARG DOCFILES=no
+ARG SRCFILES=no
+
+# create installation profile for full scheme installation with
+# the selected options
+RUN echo "Building with documentation: $DOCFILES" && \
   echo "Building with sources: $SRCFILES" && \
   # choose complete installation
   echo "selected_scheme scheme-full" > install.profile && \
@@ -87,23 +86,39 @@ RUN echo "Fetching installation from mirror $TLMIRRORURL" && \
   cd .. && \
   rm -rf texlive
 
+FROM root AS tree-full
+
+# whether to install documentation and/or source files
+# this has to be yes or no
+ARG DOCFILES=yes
+ARG SRCFILES=yes
+
+# create installation profile for full scheme installation with
+# the selected options
+RUN echo "Building with documentation: $DOCFILES" && \
+  echo "Building with sources: $SRCFILES" && \
+  # choose complete installation
+  echo "selected_scheme scheme-full" > install.profile && \
+  # … but disable documentation and source files when asked to stay slim
+  if [ "$DOCFILES" = "no" ]; then echo "tlpdbopt_install_docfiles 0" >> install.profile && \
+    echo "BUILD: Disabling documentation files"; fi && \
+  if [ "$SRCFILES" = "no" ]; then echo "tlpdbopt_install_srcfiles 0" >> install.profile && \
+    echo "BUILD: Disabling source files"; fi && \
+  echo "tlpdbopt_autobackup 0" >> install.profile && \
+  # furthermore we want our symlinks in the system binary folder to avoid
+  # fiddling around with the PATH
+  echo "tlpdbopt_sys_bin /usr/bin" >> install.profile && \
+  # actually install TeX Live
+  ./install-tl -profile install.profile && \
+  cd .. && \
+  rm -rf texlive
+
+
 FROM base AS release
-# the current release needed to determine which way to
-# verify files
-ARG CURRENTRELEASE=2022
-# the documentation or source suffix ("-doc" etc.)
-ARG SUFFIX=""
-
-# whether to create font and ConTeXt caches
-ARG GENERATE_CACHES=yes
-
-ARG DOCFILES
-ARG SRCFILES
 
 WORKDIR /tmp
 
-RUN echo "deb http://ftp.de.debian.org/debian bookworm main" >> /etc/apt/sources.list && \
-  apt-get update && \
+RUN apt-get update && \
   # The line above adds the Debian main mirror which is only required to
   # fetch libncurses5 from Debian package repositories. Xindy requires
   # libncurses5.
@@ -130,6 +145,14 @@ RUN echo "deb http://ftp.de.debian.org/debian bookworm main" >> /etc/apt/sources
   rm -rf /var/lib/apt/lists/* && \
   apt-get clean && \
   rm -rf /var/cache/apt/
+
+FROM release AS texlive
+
+# whether to create font and ConTeXt caches
+ARG GENERATE_CACHES=yes
+
+ARG DOCFILES=no
+ARG SRCFILES=no
 
 COPY --from=tree /usr/local/texlive /usr/local/texlive
 
@@ -165,3 +188,44 @@ RUN \
   if [ "$DOCFILES" = "yes" ]; then texdoc -l geometry; fi && \
   if [ "$SRCFILES" = "yes" ]; then kpsewhich amsmath.dtx; fi
 
+FROM release AS texlive-full
+
+# whether to create font and ConTeXt caches
+ARG GENERATE_CACHES=yes
+
+ARG DOCFILES=yes
+ARG SRCFILES=yes
+
+COPY --from=tree-full /usr/local/texlive /usr/local/texlive
+
+# add all relevant binaries to the PATH and set TEXMF for ConTeXt
+ENV PATH=/usr/local/texlive/$CURRENTRELEASE/bin/x86_64-linux:$PATH \
+    MANPATH=/usr/local/texlive/$CURRENTRELEASE/texmf-dist/doc/man:$MANPATH \
+    INFOPATH=/usr/local/texlive/$CURRENTRELEASE/texmf-dist/doc/info:$INFOPATH
+
+WORKDIR /
+RUN echo "Set PATH to $PATH" && \
+  # pregenerate caches as per #3; overhead is < 5 MB which does not really
+  # matter for images in the sizes of GBs
+  if [ "$GENERATE_CACHES" = "yes" ]; then \
+    echo "Generating caches" && \
+    luaotfload-tool -u && \
+    mtxrun --generate && \
+    # also generate fontconfig cache as per #18 which is approx. 20 MB but
+    # benefits XeLaTeX user to load fonts from the TL tree by font name
+    cp "$(find /usr/local/texlive -name texlive-fontconfig.conf)" /etc/fonts/conf.d/09-texlive-fonts.conf && \
+    fc-cache -fsv; \
+  else \
+    echo "Not generating caches"; \
+  fi
+
+RUN \
+  # test the installation
+  latex --version && printf '\n' && \
+  biber --version && printf '\n' && \
+  xindy --version && printf '\n' && \
+  arara --version && printf '\n' && \
+  python --version && printf '\n' && \
+  pygmentize -V && printf '\n' && \
+  if [ "$DOCFILES" = "yes" ]; then texdoc -l geometry; fi && \
+  if [ "$SRCFILES" = "yes" ]; then kpsewhich amsmath.dtx; fi
