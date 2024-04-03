@@ -64,7 +64,8 @@ ARG SRCFILES=no
 
 # create installation profile for full scheme installation with
 # the selected options
-RUN echo "Building with documentation: $DOCFILES" && \
+RUN cd texlive && \
+  echo "Building with documentation: $DOCFILES" && \
   echo "Building with sources: $SRCFILES" && \
   # choose complete installation
   echo "selected_scheme scheme-full" > install.profile && \
@@ -91,7 +92,8 @@ ARG SRCFILES=yes
 
 # create installation profile for full scheme installation with
 # the selected options
-RUN echo "Building with documentation: $DOCFILES" && \
+RUN cd texlive && \
+  echo "Building with documentation: $DOCFILES" && \
   echo "Building with sources: $SRCFILES" && \
   # choose complete installation
   echo "selected_scheme scheme-full" > install.profile && \
