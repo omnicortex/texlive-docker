@@ -5,11 +5,11 @@
 
 # the current release needed to determine which way to
 # verify files
-ARG CURRENTRELEASE
+ARG CURRENTRELEASE=2022
 # the documentation or source suffix ("-doc" etc.)
-ARG SUFFIX=""
+#ARG SUFFIX=""
 
-FROM registry.gitlab.com/islandoftex/images/texlive:TL$CURRENTRELEASE-historic-tree$SUFFIX AS tree
+#FROM registry.gitlab.com/islandoftex/images/texlive:TL$CURRENTRELEASE-historic-tree$SUFFIX AS tree
 
 FROM debian:11-slim AS base
 
@@ -43,10 +43,54 @@ RUN apt-get update && \
   # bad fix for python handling
   ln -s /usr/bin/python3 /usr/bin/python
 
+FROM debian:11-slim AS tree
+
+# whether to install documentation and/or source files
+# this has to be yes or no
+ARG DOCFILES=no
+ARG SRCFILES=no
+
+# the mirror from which we will download TeX Live
+ARG TLMIRRORURL
+
+# install required setup dependencies
+RUN apt-get update && \
+  apt-get install -qy --no-install-recommends \
+  gpg gpg-agent perl rsync sed tar
+
+# use a working directory to collect downloaded artifacts
+WORKDIR /tmp
+
+# download and verify TL installer before extracting archive
+RUN echo "Fetching installation from mirror $TLMIRRORURL" && \
+  rsync -a --stats "$TLMIRRORURL" texlive && \
+  cd texlive && \
+  # debug output for potential bad rsync fetches
+  if ! [ -f install-tl ]; then ls -lisa; fi && \
+  # create installation profile for full scheme installation with
+  # the selected options
+  echo "Building with documentation: $DOCFILES" && \
+  echo "Building with sources: $SRCFILES" && \
+  # choose complete installation
+  echo "selected_scheme scheme-full" > install.profile && \
+  # … but disable documentation and source files when asked to stay slim
+  if [ "$DOCFILES" = "no" ]; then echo "tlpdbopt_install_docfiles 0" >> install.profile && \
+    echo "BUILD: Disabling documentation files"; fi && \
+  if [ "$SRCFILES" = "no" ]; then echo "tlpdbopt_install_srcfiles 0" >> install.profile && \
+    echo "BUILD: Disabling source files"; fi && \
+  echo "tlpdbopt_autobackup 0" >> install.profile && \
+  # furthermore we want our symlinks in the system binary folder to avoid
+  # fiddling around with the PATH
+  echo "tlpdbopt_sys_bin /usr/bin" >> install.profile && \
+  # actually install TeX Live
+  ./install-tl -profile install.profile && \
+  cd .. && \
+  rm -rf texlive
+
 FROM base AS release
 # the current release needed to determine which way to
 # verify files
-ARG CURRENTRELEASE
+ARG CURRENTRELEASE=2022
 # the documentation or source suffix ("-doc" etc.)
 ARG SUFFIX=""
 
@@ -70,7 +114,7 @@ RUN echo "deb http://ftp.de.debian.org/debian bookworm main" >> /etc/apt/sources
   apt-get install -qy --no-install-recommends equivs && \
   # download equivs file for dummy package
   curl https://tug.org/texlive/files/debian-equivs-$CURRENTRELEASE-ex.txt --output texlive-local && \
-  sed -i "s/2022/9999/" texlive-local && \
+  sed -i "s/$CURRENTRELEASE/9999/" texlive-local && \
   # freeglut3 does not ship with debian testing, so we remove it because there
   # is no GUI need in the container anyway (see #28)
   sed -i "/Depends: freeglut3/d" texlive-local && \

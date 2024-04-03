@@ -1,7 +1,7 @@
 name: Build nightly
 on:
   schedule:
-    - cron: "0-59/10 * * * *"
+    - cron: "0 0 * * *"
   push:
 
 jobs:
@@ -46,7 +46,7 @@ jobs:
         build-args: |
           DOCFILES=no 
           SRCFILES=no 
-          CURRENTRELEASE=2022
+          TLMIRRORURL=rsync://tug.org/historic/
         tags: |
           ghcr.io/${{ github.repository_owner }}/texlive:2022
 
