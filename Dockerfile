@@ -3,13 +3,6 @@
 # Linux/MUSL platform (at least not via default TeX Live). Now downstream
 # images rely on this, so do not change the base OS without good reason.
 
-# the current release needed to determine which way to
-# verify files
-ARG CURRENTRELEASE
-
-# the mirror from which we will download TeX Live
-ARG TLMIRRORURL
-
 FROM debian:11-slim AS base
 
 ENV LANG=C.UTF-8 \
@@ -43,7 +36,10 @@ RUN apt-get update && \
   ln -s /usr/bin/python3 /usr/bin/python
 
 FROM debian:11-slim AS root
+
+# the mirror from which we will download TeX Live
 ARG TLMIRRORURL
+
 # install required setup dependencies
 RUN apt-get update && \
   apt-get install -qy --no-install-recommends \
@@ -115,6 +111,9 @@ RUN echo "Building with documentation: $DOCFILES" && \
 
 
 FROM base AS release
+# the current release needed to determine which way to
+# verify files
+ARG CURRENTRELEASE
 
 WORKDIR /tmp
 
@@ -147,6 +146,9 @@ RUN apt-get update && \
   rm -rf /var/cache/apt/
 
 FROM release AS texlive
+# the current release needed to determine which way to
+# verify files
+ARG CURRENTRELEASE
 
 # whether to create font and ConTeXt caches
 ARG GENERATE_CACHES=yes
@@ -189,6 +191,9 @@ RUN \
   if [ "$SRCFILES" = "yes" ]; then kpsewhich amsmath.dtx; fi
 
 FROM release AS texlive-full
+# the current release needed to determine which way to
+# verify files
+ARG CURRENTRELEASE
 
 # whether to create font and ConTeXt caches
 ARG GENERATE_CACHES=yes
