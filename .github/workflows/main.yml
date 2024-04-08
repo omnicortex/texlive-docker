@@ -1,6 +1,8 @@
 name: Build nightly
 on:
   push:
+    paths:
+      - Dockerfile
 
 jobs:
   check:
