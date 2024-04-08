@@ -65,7 +65,7 @@ jobs:
       run: |
         sudo rm -rf /usr/share/dotnet
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-        sudo docker image prune
+        sudo docker image prune --force
 
     - name: Build TeX Live full
       uses: docker/build-push-action@v3
