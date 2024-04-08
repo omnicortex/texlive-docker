@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - Dockerfile
+      - main.yml
 
 jobs:
   check:
@@ -40,7 +41,7 @@ jobs:
 
     - name: Retrieve mirror url
       run: |
-        export CURRENTRELEASE=2021
+        export CURRENTRELEASE=2014
         export "MIRROR=$(scripts/pick-historic-mirror.sh $CURRENTRELEASE)systems/texlive/$CURRENTRELEASE/tlnet-final/"
         echo "MIRRORURL=$MIRROR" >> $GITHUB_OUTPUT
       id: mirror
@@ -56,12 +57,12 @@ jobs:
         push: true
         target: texlive
         build-args: |
-          CURRENTRELEASE=2021
+          CURRENTRELEASE=2014
           DOCFILES=no
           SRCFILES=no
           TLMIRRORURL=${{ steps.mirror.outputs.MIRRORURL }}
         tags: |
-          ghcr.io/${{ github.repository_owner }}/texlive:2021
+          ghcr.io/${{ github.repository_owner }}/texlive:2014
 
     - name: Remove unnecessary files
       run: |
@@ -76,9 +77,9 @@ jobs:
         push: true
         target: texlive-full
         build-args: |
-          CURRENTRELEASE=2021
+          CURRENTRELEASE=2014
           DOCFILES=yes
           SRCFILES=yes
           TLMIRRORURL=${{ steps.mirror.outputs.MIRRORURL }}
         tags: |
-          ghcr.io/${{ github.repository_owner }}/texlive:2021-full
+          ghcr.io/${{ github.repository_owner }}/texlive:2014-full
