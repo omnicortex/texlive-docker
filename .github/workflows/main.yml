@@ -40,7 +40,7 @@ jobs:
 
     - name: Retrieve mirror url
       run: |
-        export CURRENTRELEASE=2022
+        export CURRENTRELEASE=2021
         export "MIRROR=$(scripts/pick-historic-mirror.sh $CURRENTRELEASE)systems/texlive/$CURRENTRELEASE/tlnet-final/"
         echo "MIRRORURL=$MIRROR" >> $GITHUB_OUTPUT
       id: mirror
@@ -56,12 +56,12 @@ jobs:
         push: true
         target: texlive
         build-args: |
-          CURRENTRELEASE=2022
+          CURRENTRELEASE=2021
           DOCFILES=no
           SRCFILES=no
           TLMIRRORURL=${{ steps.mirror.outputs.MIRRORURL }}
         tags: |
-          ghcr.io/${{ github.repository_owner }}/texlive:2022
+          ghcr.io/${{ github.repository_owner }}/texlive:2021
 
     - name: Remove unnecessary files
       run: |
@@ -76,9 +76,9 @@ jobs:
         push: true
         target: texlive-full
         build-args: |
-          CURRENTRELEASE=2022
+          CURRENTRELEASE=2021
           DOCFILES=yes
           SRCFILES=yes
           TLMIRRORURL=${{ steps.mirror.outputs.MIRRORURL }}
         tags: |
-          ghcr.io/${{ github.repository_owner }}/texlive:2022-full
+          ghcr.io/${{ github.repository_owner }}/texlive:2021-full
