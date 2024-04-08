@@ -61,6 +61,12 @@ jobs:
         tags: |
           ghcr.io/${{ github.repository_owner }}/texlive:2022
 
+    - name: Remove unnecessary files
+      run: |
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        sudo docker image prune
+
     - name: Build TeX Live full
       uses: docker/build-push-action@v3
       with:
