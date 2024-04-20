@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - Dockerfile
+      - main.yml
 
 jobs:
   check:
