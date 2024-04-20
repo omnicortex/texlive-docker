@@ -10,7 +10,7 @@ corresponding to the latest release of TeX Live (tagged latest).
 
 ### Why this fork?
 
-This fork build historic releases of TeX Live against stable and old versions of Debian.  Only the latest TeX Live is build against the tesing branch of Debian (hopefully it will be identical to the official image.)
+This fork build historic releases of TeX Live against stable and old versions of Debian.
 
 ## Usage
 
@@ -42,13 +42,6 @@ For every release `X` (e.g. `latest`) we are providing the following flavors:
 
 If in doubt, choose `X` and only pull the larger images if you have to.
 Especially documentation files do add a significant payload.
-
-## The `latest` release
-
-Our continuous integration is scheduled to rebuild all Docker images monthly.
-Hence, pulling the `latest` image will provide you with an at most one month old
-snapshot of TeX Live including all packages. You can manually update within the
-container by running `tlmgr update --self --all`.
 
 
 *Note for users of schemes other than `full`*: if you `tlmgr install` another
