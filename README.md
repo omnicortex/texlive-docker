@@ -10,7 +10,7 @@ corresponding to the latest release of TeX Live (tagged latest).
 
 ### Why this fork?
 
-This fork build historic releases of TeX Live against stable and old versions of Debian.  Only the latest TeX Live is build against the tesing branch of Debian (hopefully it will be identical to the official image.)
+This fork build historic releases of TeX Live against stable and old versions of Debian.
 
 ## Usage
 
