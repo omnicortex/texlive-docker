@@ -14,6 +14,13 @@ ENV LANG=C.UTF-8 \
     # install perl docs…
     NOPERLDOC=1
 
+#!/bin/bash
+
+# Update sources.list for apt
+RUN echo > /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
+
 RUN apt-get update && \
   # basic utilities for TeX Live installation
   apt-get install -qy --no-install-recommends curl git unzip \
@@ -36,6 +43,11 @@ RUN apt-get update && \
   ln -s /usr/bin/python3 /usr/bin/python
 
 FROM debian:7-slim AS root
+
+# Update sources.list for apt
+RUN echo > /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
 
 # the mirror from which we will download TeX Live
 ARG TLMIRRORURL
