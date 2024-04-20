@@ -43,13 +43,6 @@ For every release `X` (e.g. `latest`) we are providing the following flavors:
 If in doubt, choose `X` and only pull the larger images if you have to.
 Especially documentation files do add a significant payload.
 
-## The `latest` release
-
-Our continuous integration is scheduled to rebuild all Docker images monthly.
-Hence, pulling the `latest` image will provide you with an at most one month old
-snapshot of TeX Live including all packages. You can manually update within the
-container by running `tlmgr update --self --all`.
-
 
 *Note for users of schemes other than `full`*: if you `tlmgr install` another
 binary they are not added to the `PATH` automatically because they are not
