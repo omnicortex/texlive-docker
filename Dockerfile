@@ -23,10 +23,10 @@ RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/d
 
 RUN apt-get update && \
   # basic utilities for TeX Live installation
-  apt-get install -qy --no-install-recommends curl git unzip \
+  apt-get install -qy curl git unzip \
   # miscellaneous dependencies for TeX Live tools
   make fontconfig default-jre libgetopt-long-descriptive-perl \
-  libdigest-md5-file-perl libncurses5 \
+  libdigest-md5-file-perl \
   # for latexindent (see #13)
   libunicode-linebreak-perl libfile-homedir-perl libyaml-tiny-perl \
   # for eps conversion (see #14)
