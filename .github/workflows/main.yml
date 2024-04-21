@@ -1,6 +1,8 @@
 name: Build 2021
 on:
   push:
+    branches:
+      - "2021"
     paths:
       - Dockerfile
       - main.yml
