@@ -1,4 +1,4 @@
-name: Build nightly
+name: Build 2014
 on:
   push:
     paths:

@@ -5,9 +5,6 @@ repositories (full installation with all packages but without documentation).
 It also provides the necessary tooling to execute common helper tools (e.g.
 Java for arara, Perl for Biber and Xindy, Python for Pygments).
 
-Please note that we only provide selected historical releases and one image
-corresponding to the latest release of TeX Live (tagged latest).
-
 ### Why this fork?
 
 This fork build historic releases of TeX Live against stable and old versions of Debian.
