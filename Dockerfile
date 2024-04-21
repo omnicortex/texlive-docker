@@ -25,7 +25,7 @@ RUN apt-get update && \
   # basic utilities for TeX Live installation
   apt-get install -qy --no-install-recommends curl git unzip \
   # miscellaneous dependencies for TeX Live tools
-  make fontconfig perl default-jre libgetopt-long-descriptive-perl \
+  make fontconfig default-jre libgetopt-long-descriptive-perl \
   libdigest-md5-file-perl libncurses5 \
   # for latexindent (see #13)
   libunicode-linebreak-perl libfile-homedir-perl libyaml-tiny-perl \
