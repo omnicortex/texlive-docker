@@ -27,7 +27,7 @@ RUN apt-get update && \
   # for metafont (see #24)
   libsm6 \
   # for syntax highlighting
-  python3 python3-pygments \
+  python3 python3-pygments python3-setuptools \
   # for gnuplot backend of pgfplots (see !13)
   gnuplot-nox && \
   rm -rf /var/lib/apt/lists/* && \
