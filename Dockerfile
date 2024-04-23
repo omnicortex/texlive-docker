@@ -3,6 +3,8 @@
 # Linux/MUSL platform (at least not via default TeX Live). Now downstream
 # images rely on this, so do not change the base OS without good reason.
 
+# Tex Live 2019 is built on Debian 10
+
 FROM debian:10-slim AS base
 
 ENV LANG=C.UTF-8 \
