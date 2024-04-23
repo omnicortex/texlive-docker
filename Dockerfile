@@ -3,9 +3,9 @@
 # Linux/MUSL platform (at least not via default TeX Live). Now downstream
 # images rely on this, so do not change the base OS without good reason.
 
-# Tex Live 2019 is built on Debian 10
+# Tex Live 2018 is built on Debian 9
 
-FROM debian:10-slim AS base
+FROM debian:9-slim AS base
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
@@ -37,7 +37,7 @@ RUN apt-get update && \
   # bad fix for python handling
   ln -s /usr/bin/python3 /usr/bin/python
 
-FROM debian:10-slim AS root
+FROM debian:9-slim AS root
 
 # the mirror from which we will download TeX Live
 ARG TLMIRRORURL
