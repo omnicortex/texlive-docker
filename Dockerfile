@@ -16,6 +16,11 @@ ENV LANG=C.UTF-8 \
     # install perl docs…
     NOPERLDOC=1
 
+# Update sources.list for apt
+RUN echo > /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ stretch main contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ stretch main contrib" >> /etc/apt/sources.list
+
 RUN apt-get update && \
   # basic utilities for TeX Live installation
   apt-get install -qy --no-install-recommends curl git unzip \
@@ -41,6 +46,11 @@ FROM debian:9-slim AS root
 
 # the mirror from which we will download TeX Live
 ARG TLMIRRORURL
+
+# Update sources.list for apt
+RUN echo > /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ stretch main contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ stretch main contrib" >> /etc/apt/sources.list
 
 # install required setup dependencies
 RUN apt-get update && \
