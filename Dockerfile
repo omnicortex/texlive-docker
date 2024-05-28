@@ -245,6 +245,6 @@ RUN \
   xindy --version && printf '\n' && \
   arara --version && printf '\n' && \
   python --version && printf '\n' && \
-  pygmentize -V && printf '\n' && \
+#  pygmentize -V && printf '\n' && \
   if [ "$DOCFILES" = "yes" ]; then texdoc -l geometry; fi && \
   if [ "$SRCFILES" = "yes" ]; then kpsewhich amsmath.dtx; fi
