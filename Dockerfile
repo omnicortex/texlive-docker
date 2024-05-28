@@ -3,7 +3,7 @@
 # Linux/MUSL platform (at least not via default TeX Live). Now downstream
 # images rely on this, so do not change the base OS without good reason.
 
-# Tex Live 2018 is built on Debian 9
+# Tex Live 2017 is built on Debian 9
 
 FROM debian:9-slim AS base
 

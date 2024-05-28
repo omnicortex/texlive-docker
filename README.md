@@ -17,11 +17,11 @@ This fork build historic releases of TeX Live against stable and old versions of
 To use one of these images in your projects, simply lookup the name of the
 image on GitHub Packages and use
 
-    FROM ghcr.io/omnicortex/texlive:latest
+    FROM ghcr.io/omnicortex/texlive:<year>
 
 or 
 
-    FROM ghcr.io/omnicortex/texlive:latest-full
+    FROM ghcr.io/omnicortex/texlive:<year>-full
 
 or any other tag.
 
