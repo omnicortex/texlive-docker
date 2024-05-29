@@ -5,7 +5,7 @@
 
 # Tex Live 2016 is built on Debian 8
 
-FROM debian:jessie-slim AS base
+FROM debian:8-slim AS base
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
@@ -38,11 +38,11 @@ RUN apt-get update && \
   # for gnuplot backend of pgfplots (see !13)
   gnuplot-nox && \
   rm -rf /var/lib/apt/lists/* && \
-  rm -rf /var/cache/apt/ && \
+  rm -rf /var/cache/apt/
   # bad fix for python handling
   # ln -s /usr/bin/python3 /usr/bin/python
 
-FROM debian:jessie-slim AS root
+FROM debian:8-slim AS root
 
 # the mirror from which we will download TeX Live
 ARG TLMIRRORURL
