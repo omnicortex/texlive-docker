@@ -3,9 +3,9 @@
 # Linux/MUSL platform (at least not via default TeX Live). Now downstream
 # images rely on this, so do not change the base OS without good reason.
 
-# Tex Live 2017 is built on Debian 9
+# Tex Live 2016 is built on Debian 8
 
-FROM debian:9-slim AS base
+FROM debian:8-slim AS base
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
@@ -18,8 +18,8 @@ ENV LANG=C.UTF-8 \
 
 # Update sources.list for apt
 RUN echo > /etc/apt/sources.list
-RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ stretch main contrib" >> /etc/apt/sources.list
-RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ stretch main contrib" >> /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ jessie main contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ jessie main contrib" >> /etc/apt/sources.list
 
 RUN apt-get update && \
   # basic utilities for TeX Live installation
@@ -34,23 +34,23 @@ RUN apt-get update && \
   # for metafont (see #24)
   libsm6 \
   # for syntax highlighting
-  python3 python3-pygments python3-setuptools \
+  python python-pygments python-setuptools \
   # for gnuplot backend of pgfplots (see !13)
   gnuplot-nox && \
   rm -rf /var/lib/apt/lists/* && \
   rm -rf /var/cache/apt/ && \
   # bad fix for python handling
-  ln -s /usr/bin/python3 /usr/bin/python
+  # ln -s /usr/bin/python3 /usr/bin/python
 
-FROM debian:9-slim AS root
+FROM debian:8-slim AS root
 
 # the mirror from which we will download TeX Live
 ARG TLMIRRORURL
 
 # Update sources.list for apt
 RUN echo > /etc/apt/sources.list
-RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ stretch main contrib" >> /etc/apt/sources.list
-RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ stretch main contrib" >> /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ jessie main contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ jessie main contrib" >> /etc/apt/sources.list
 
 # install required setup dependencies
 RUN apt-get update && \
