@@ -20,8 +20,8 @@ ENV LANG=C.UTF-8 \
 RUN echo > /etc/apt/sources.list
 RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ jessie main contrib" >> /etc/apt/sources.list
 RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ jessie main contrib" >> /etc/apt/sources.list
-RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ jessie/updates main non-free contrib
-RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ jessie/updates main non-free contrib
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
 
 RUN apt-get update && \
   # basic utilities for TeX Live installation
@@ -53,8 +53,8 @@ ARG TLMIRRORURL
 RUN echo > /etc/apt/sources.list
 RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ jessie main contrib" >> /etc/apt/sources.list
 RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ jessie main contrib" >> /etc/apt/sources.list
-RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ jessie/updates main non-free contrib
-RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ jessie/updates main non-free contrib
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
 
 # install required setup dependencies
 RUN apt-get update && \
