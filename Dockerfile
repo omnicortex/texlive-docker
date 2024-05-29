@@ -61,7 +61,7 @@ ARG TLMIRRORURL
 # install required setup dependencies
 RUN apt-get update && \
   apt-get install -qy \
-  gnupg-agent rsync sed tar
+  gnupg-agent rsync sed tar wget
 
 # use a working directory to collect downloaded artifacts
 WORKDIR /tmp
