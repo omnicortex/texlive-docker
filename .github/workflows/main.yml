@@ -1,4 +1,4 @@
-name: Build 2016
+name: Build 2015
 on:
   push:
     paths:
@@ -41,7 +41,7 @@ jobs:
 
     - name: Retrieve mirror url
       run: |
-        export CURRENTRELEASE=2016
+        export CURRENTRELEASE=2015
         export "MIRROR=$(scripts/pick-historic-mirror.sh $CURRENTRELEASE)systems/texlive/$CURRENTRELEASE/tlnet-final/"
         echo "MIRRORURL=$MIRROR" >> $GITHUB_OUTPUT
       id: mirror
@@ -57,12 +57,12 @@ jobs:
         push: true
         target: texlive
         build-args: |
-          CURRENTRELEASE=2016
+          CURRENTRELEASE=2015
           DOCFILES=no
           SRCFILES=no
           TLMIRRORURL=${{ steps.mirror.outputs.MIRRORURL }}
         tags: |
-          ghcr.io/${{ github.repository_owner }}/texlive:2016
+          ghcr.io/${{ github.repository_owner }}/texlive:2015
 
     - name: Remove unnecessary files
       run: |
@@ -77,9 +77,9 @@ jobs:
         push: true
         target: texlive-full
         build-args: |
-          CURRENTRELEASE=2016
+          CURRENTRELEASE=2015
           DOCFILES=yes
           SRCFILES=yes
           TLMIRRORURL=${{ steps.mirror.outputs.MIRRORURL }}
         tags: |
-          ghcr.io/${{ github.repository_owner }}/texlive:2016-full
+          ghcr.io/${{ github.repository_owner }}/texlive:2015-full

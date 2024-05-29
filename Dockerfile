@@ -3,7 +3,7 @@
 # Linux/MUSL platform (at least not via default TeX Live). Now downstream
 # images rely on this, so do not change the base OS without good reason.
 
-# Tex Live 2016 is built on Debian 8
+# Tex Live 2015 is built on Debian 8
 
 FROM debian:8-slim AS base
 
