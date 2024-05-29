@@ -23,6 +23,8 @@ RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/d
 RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
 RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
 
+# Fix for Java install man folder. See https://stackoverflow.com/questions/58160597/docker-fails-with-sub-process-usr-bin-dpkg-returned-an-error-code-1
+RUN mkdir -p /usr/share/man/man1
 RUN apt-get update && \
   # basic utilities for TeX Live installation
   apt-get install -qy --no-install-recommends curl git unzip \
