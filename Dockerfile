@@ -20,13 +20,17 @@ ENV LANG=C.UTF-8 \
 RUN echo > /etc/apt/sources.list
 RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
 RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ wheezy/updates main non-free contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ wheezy/updates main non-free contrib" >> /etc/apt/sources.list
 
+# Fix for Java install man folder. See https://stackoverflow.com/questions/58160597/docker-fails-with-sub-process-usr-bin-dpkg-returned-an-error-code-1
+RUN mkdir -p /usr/share/man/man1
 RUN apt-get update && \
   # basic utilities for TeX Live installation
   apt-get install -qy curl git unzip \
   # miscellaneous dependencies for TeX Live tools
-  make fontconfig default-jre libgetopt-long-descriptive-perl \
-  libdigest-md5-file-perl \
+  make fontconfig perl default-jre libgetopt-long-descriptive-perl \
+  libdigest-md5-file-perl libncurses5 \
   # for latexindent (see #13)
   libunicode-linebreak-perl libfile-homedir-perl libyaml-tiny-perl \
   # for eps conversion (see #14)
@@ -34,13 +38,13 @@ RUN apt-get update && \
   # for metafont (see #24)
   libsm6 \
   # for syntax highlighting
-  python3 python3-pygments \
+  python python-pygments python-setuptools \
   # for gnuplot backend of pgfplots (see !13)
   gnuplot-nox && \
   rm -rf /var/lib/apt/lists/* && \
-  rm -rf /var/cache/apt/ && \
+  rm -rf /var/cache/apt/
   # bad fix for python handling
-  ln -s /usr/bin/python3 /usr/bin/python
+  # ln -s /usr/bin/python3 /usr/bin/python
 
 FROM debian:7-slim AS root
 
@@ -48,6 +52,8 @@ FROM debian:7-slim AS root
 RUN echo > /etc/apt/sources.list
 RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
 RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ wheezy/updates main non-free contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ wheezy/updates main non-free contrib" >> /etc/apt/sources.list
 
 # the mirror from which we will download TeX Live
 ARG TLMIRRORURL
@@ -123,7 +129,6 @@ RUN cd texlive && \
   cd .. && \
   rm -rf texlive
 
-
 FROM base AS release
 # the current release needed to determine which way to
 # verify files
@@ -148,7 +153,7 @@ RUN apt-get update && \
   sed -i "/Depends: freeglut3/d" texlive-local && \
   # we need to change into tl-equivs to get it working
   equivs-build texlive-local && \
-  dpkg -i texlive-local_9999.99999999-1_all.deb && \
+  dpkg -i texlive-local_9999-2_all.deb && \
   apt-get install -qyf --no-install-recommends && \
   # reverse the cd command from above and cleanup
   rm -rf ./* && \
