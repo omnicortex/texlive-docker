@@ -5,7 +5,7 @@
 
 # Tex Live 2016 is built on Debian 8
 
-FROM debian:8-slim AS base
+FROM debian:jessie-slim AS base
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
@@ -42,7 +42,7 @@ RUN apt-get update && \
   # bad fix for python handling
   # ln -s /usr/bin/python3 /usr/bin/python
 
-FROM debian:8-slim AS root
+FROM debian:jessie-slim AS root
 
 # the mirror from which we will download TeX Live
 ARG TLMIRRORURL
