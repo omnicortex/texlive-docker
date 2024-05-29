@@ -59,7 +59,7 @@ RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/d
 # install required setup dependencies
 RUN apt-get update && \
   apt-get install -qy --no-install-recommends \
-  gpg gpg-agent perl rsync sed tar wget
+  gnupg-agent perl rsync sed tar wget
 
 # use a working directory to collect downloaded artifacts
 WORKDIR /tmp
