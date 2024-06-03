@@ -154,7 +154,7 @@ RUN apt-get update && \
   sed -i "/Depends: freeglut3/d" texlive-local && \
   # we need to change into tl-equivs to get it working
   equivs-build texlive-local && \
-  dpkg -i texlive-local_9999-2_all.deb && \
+  dpkg -i texlive-local_9999-1_all.deb && \
   apt-get install -qyf --no-install-recommends && \
   # reverse the cd command from above and cleanup
   rm -rf ./* && \
