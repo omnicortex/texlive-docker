@@ -3,6 +3,7 @@
 # Linux/MUSL platform (at least not via default TeX Live). Now downstream
 # images rely on this, so do not change the base OS without good reason.
 
+# TeX Live 2013 is build on Debian 7 (Wheezy)
 FROM debian:7-slim AS base
 
 ENV LANG=C.UTF-8 \
