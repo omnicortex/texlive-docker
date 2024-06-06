@@ -4,7 +4,7 @@
 # images rely on this, so do not change the base OS without good reason.
 
 # TeX Live 2012 is build on Debian 6 (Squeeze)
-FROM debian:6-slim AS base
+FROM debian:6 AS base
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
@@ -47,7 +47,7 @@ RUN apt-get update && \
   # bad fix for python handling
   # ln -s /usr/bin/python3 /usr/bin/python
 
-FROM debian:6-slim AS root
+FROM debian:6 AS root
 
 # Update sources.list for apt
 RUN echo > /etc/apt/sources.list
