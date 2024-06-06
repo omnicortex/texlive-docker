@@ -3,8 +3,8 @@
 # Linux/MUSL platform (at least not via default TeX Live). Now downstream
 # images rely on this, so do not change the base OS without good reason.
 
-# TeX Live 2013 is build on Debian 7 (Wheezy)
-FROM debian:7-slim AS base
+# TeX Live 2012 is build on Debian 6 (Squeeze)
+FROM debian:6-slim AS base
 
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
@@ -19,10 +19,10 @@ ENV LANG=C.UTF-8 \
 
 # Update sources.list for apt
 RUN echo > /etc/apt/sources.list
-RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
-RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
-RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ wheezy/updates main non-free contrib" >> /etc/apt/sources.list
-RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ wheezy/updates main non-free contrib" >> /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ squeeze main contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ squeeze main contrib" >> /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ squeeze/updates main non-free contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ squeeze/updates main non-free contrib" >> /etc/apt/sources.list
 
 # Fix for Java install man folder. See https://stackoverflow.com/questions/58160597/docker-fails-with-sub-process-usr-bin-dpkg-returned-an-error-code-1
 RUN mkdir -p /usr/share/man/man1
@@ -47,14 +47,14 @@ RUN apt-get update && \
   # bad fix for python handling
   # ln -s /usr/bin/python3 /usr/bin/python
 
-FROM debian:7-slim AS root
+FROM debian:6-slim AS root
 
 # Update sources.list for apt
 RUN echo > /etc/apt/sources.list
-RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
-RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ wheezy main contrib" >> /etc/apt/sources.list
-RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ wheezy/updates main non-free contrib" >> /etc/apt/sources.list
-RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ wheezy/updates main non-free contrib" >> /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ squeeze main contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian/ squeeze main contrib" >> /etc/apt/sources.list
+RUN echo "deb [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ squeeze/updates main non-free contrib" >> /etc/apt/sources.list
+RUN echo "deb-src [trusted=yes check-valid-until=no] http://archive.debian.org/debian-security/ squeeze/updates main non-free contrib" >> /etc/apt/sources.list
 
 # the mirror from which we will download TeX Live
 ARG TLMIRRORURL
